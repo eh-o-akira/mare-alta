@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maré Alta - Loja de Barcos</title>
   <link rel="stylesheet" href="style.css">
-  <button class="btn-sair" id="btn-sair" style="display:none;">Sair</button>
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <style>
-    /* ... SEU CSS EXISTENTE (mantido 100% igual) ... */
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
@@ -96,12 +94,14 @@
       transform: translateY(0);
     }
 
-    .carrinho-container {
+    /* Container do carrinho e botão sair */
+    .header-actions {
       position: fixed;
       top: 20px;
       right: 20px;
       z-index: 1000;
       display: flex;
+      flex-direction: column;
       align-items: center;
       gap: 10px;
     }
@@ -137,6 +137,31 @@
       justify-content: center;
       font-weight: bold;
       font-size: 0.9rem;
+    }
+
+    /* Botão Sair estilizado */
+    .btn-sair {
+      background: white;
+      color: #023e8a;
+      border: 2px solid #023e8a;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      width: 90px;
+      text-align: center;
+    }
+
+    .btn-sair:hover {
+      background: #f0f7ff;
+      color: #d62828;
+      border-color: #d62828;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
 
     html {
@@ -264,30 +289,9 @@
       background: #005f8a;
       transform: translateY(-2px);
     }
-
-    .btn-sair {
-      position: fixed;
-      top: 20px;
-      right: 90px;
-      background: transparent;
-      color: #023e8a;
-      border: none;
-      font-size: 1rem;
-      cursor: pointer;
-      text-decoration: underline;
-      opacity: 0.7;
-      z-index: 1100;
-      transition: opacity 0.2s;
-    }
-
-    .btn-sair:hover {
-      opacity: 1;
-      color: #d62828;
-    }
   </style>
 </head>
 <body>
-  <button class="btn-sair" id="btn-sair" style="display:none;">Sair</button>
   <header>
     <h1>Maré Alta</h1>
     <nav>
@@ -295,14 +299,13 @@
       <a href="#modelos" class="btn">Modelos</a>
       <a href="#secao-contato" class="btn">Contato</a>
     </nav>
-    <div class="carrinho-container">
+    <!-- Container com Carrinho + Botão Sair -->
+    <div class="header-actions">
       <button class="carrinho-btn" onclick="window.location.href='carrinho.html'">🛒</button>
       <div class="carrinho-count" id="carrinho-count">0</div>
+      <a href="#" class="btn-sair" id="btn-sair" style="display:none;">Sair</a>
     </div>
   </header>
-
-  <!-- ... SEU CONTEÚDO DO BODY (HERO, MODELOS, CONTATO) ... -->
-  <!-- (Mantido exatamente como você já tem — não mude nada abaixo!) -->
 
   <section class="hero" id="hero">
     <h1>Maré Alta</h1>
@@ -423,218 +426,213 @@
   </div>
 
   <script>
-  // 🔥 SEU FIREBASE CONFIG (JÁ CORRETO)
-  const firebaseConfig = {
-    apiKey: "AIzaSyDbeqfRD4VOV-5gx_vXuQaW069AbpFYHL0",
-    authDomain: "mare-alta-4b8d9.firebaseapp.com",
-    projectId: "mare-alta-4b8d9",
-    storageBucket: "mare-alta-4b8d9.firebasestorage.app",
-    messagingSenderId: "923084742688",
-    appId: "1:923084742688:web:360361ace1183103935c45"
-  };
-
-  // Inicializar Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-
-  // Suas funções existentes (mantidas)
-  function mostrarModal(titulo, mensagem, callbackConfirmar) {
-    const modal = document.getElementById('modal-confirmacao');
-    const tituloModal = document.getElementById('modal-titulo');
-    const mensagemModal = document.getElementById('modal-mensagem');
-    const btnConfirmar = document.getElementById('modal-confirmar');
-    const btnCancelar = document.getElementById('modal-cancelar');
-
-    tituloModal.textContent = titulo;
-    mensagemModal.textContent = mensagem;
-
-    modal.classList.add('show');
-
-    btnConfirmar.onclick = null;
-    btnCancelar.onclick = null;
-
-    btnConfirmar.onclick = function() {
-      modal.classList.remove('show');
-      if (callbackConfirmar) callbackConfirmar();
+    // 🔥 SEU FIREBASE CONFIG
+    const firebaseConfig = {
+      apiKey: "AIzaSyDbeqfRD4VOV-5gx_vXuQaW069AbpFYHL0",
+      authDomain: "mare-alta-4b8d9.firebaseapp.com",
+      projectId: "mare-alta-4b8d9",
+      storageBucket: "mare-alta-4b8d9.firebasestorage.app",
+      messagingSenderId: "923084742688",
+      appId: "1:923084742688:web:360361ace1183103935c45"
     };
 
-    btnCancelar.onclick = function() {
-      modal.classList.remove('show');
-    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-    modal.onclick = function(e) {
-      if (e.target === modal) {
+    function mostrarModal(titulo, mensagem, callbackConfirmar) {
+      const modal = document.getElementById('modal-confirmacao');
+      const tituloModal = document.getElementById('modal-titulo');
+      const mensagemModal = document.getElementById('modal-mensagem');
+      const btnConfirmar = document.getElementById('modal-confirmar');
+      const btnCancelar = document.getElementById('modal-cancelar');
+
+      tituloModal.textContent = titulo;
+      mensagemModal.textContent = mensagem;
+
+      modal.classList.add('show');
+
+      btnConfirmar.onclick = null;
+      btnCancelar.onclick = null;
+
+      btnConfirmar.onclick = function() {
         modal.classList.remove('show');
-      }
-    };
-  }
-
-  function adicionarAoCarrinho(nome, imagem, preco) {
-    mostrarModal(
-      'Adicionar ao Carrinho',
-      `Deseja adicionar ${nome} ao carrinho?`,
-      function() {
-        let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-        const itemExistente = carrinho.find(item => item.nome === nome);
-
-        if (itemExistente) {
-          itemExistente.quantidade += 1;
-        } else {
-          carrinho.push({
-            nome,
-            imagem,
-            preco,
-            quantidade: 1
-          });
-        }
-
-        localStorage.setItem('carrinho', JSON.stringify(carrinho));
-        atualizarContadorCarrinho();
-        alert(`✅ ${nome} adicionado ao carrinho!`);
-      }
-    );
-  }
-
-  function atualizarContadorCarrinho() {
-    const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-    const totalItens = carrinho.reduce((total, item) => total + item.quantidade, 0);
-    document.getElementById('carrinho-count').textContent = totalItens;
-  }
-
-  // 🔥 VERIFICAÇÃO DE LOGIN AO CARREGAR A PÁGINA 🔥
-  auth.onAuthStateChanged(user => {
-    const btnSair = document.getElementById('btn-sair');
-    if (user) {
-      // Usuário logado → mostra botão e carrega carrinho
-      btnSair.style.display = 'block';
-      atualizarContadorCarrinho();
-    } else {
-      // Usuário NÃO logado → redireciona para login
-      window.location.href = 'login.html';
-    }
-  });
-
-  // 🔥 LOGOUT 🔥
-  document.getElementById('btn-sair').onclick = function() {
-    auth.signOut().then(() => {
-      window.location.href = 'login.html';
-    }).catch(error => {
-      console.error('Erro ao sair:', error);
-      alert('Erro ao sair. Tente novamente.');
-    });
-  };
-
-  // Carregar ao iniciar (animações, scroll, etc)
-  document.addEventListener('DOMContentLoaded', function () {
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.15
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('show');
-        }
-      });
-    }, observerOptions);
-
-    document.querySelectorAll('.animate-on-scroll, .produto').forEach(el => {
-      observer.observe(el);
-    });
-
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href');
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-          window.scrollTo({
-            top: targetElement.offsetTop - 80,
-            behavior: 'smooth'
-          });
-        }
-      });
-    });
-  });
-
-  // Seu formulário de contato (mantido)
-  document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('meuformulário');
-    const comentariosContainer = document.getElementById('comentarios-container');
-
-    if (!form || !comentariosContainer) return;
-
-    function carregarComentarios() {
-      const comentariosSalvos = JSON.parse(localStorage.getItem('comentarios')) || [];
-      comentariosContainer.innerHTML = '';
-
-      if (comentariosSalvos.length === 0) {
-        comentariosContainer.innerHTML = '<p style="text-align:center; color:#888;">Nenhum comentário ainda. Seja o primeiro!</p>';
-        return;
-      }
-
-      comentariosSalvos.forEach(comentario => {
-        const div = document.createElement('div');
-        div.classList.add('comentario-item');
-        div.style.backgroundColor = '#f9f9f9';
-        div.style.padding = '15px';
-        div.style.margin = '10px 0';
-        div.style.borderRadius = '8px';
-        div.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
-        div.innerHTML = `
-          <strong>${comentario.nome} ${comentario.sobrenome}</strong> - ${comentario.data}<br>
-          <em>"${comentario.mensagem}"</em><br>
-          <small>
-            📧 ${comentario.email} | 📞 ${comentario.telefone || 'Não informado'} | 🎂 Nasc.: ${comentario.nascimento}
-          </small>
-        `;
-        comentariosContainer.appendChild(div);
-      });
-    }
-
-    function salvarComentario(comentario) {
-      const comentariosSalvos = JSON.parse(localStorage.getItem('comentarios')) || [];
-      comentariosSalvos.push(comentario);
-      localStorage.setItem('comentarios', JSON.stringify(comentariosSalvos));
-    }
-
-    form.addEventListener('submit', function (event) {
-      event.preventDefault();
-
-      const nome = document.getElementById('nome')?.value.trim();
-      const sobrenome = document.getElementById('sobrenome')?.value.trim();
-      const email = document.getElementById('email')?.value.trim();
-      const nascimento = document.getElementById('nascimento')?.value;
-      const telefone = document.getElementById('telefone')?.value.trim();
-      const mensagem = document.getElementById('mensagem')?.value.trim();
-
-      if (!nome || !sobrenome || !email || !mensagem) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
-        return;
-      }
-
-      const novoComentario = {
-        nome,
-        sobrenome,
-        email,
-        nascimento,
-        telefone,
-        mensagem,
-        data: new Date().toLocaleString('pt-BR')
+        if (callbackConfirmar) callbackConfirmar();
       };
 
-      salvarComentario(novoComentario);
-      carregarComentarios();
-      form.reset();
-      alert('✅ Mensagem enviada com sucesso! Obrigado pelo seu feedback.');
+      btnCancelar.onclick = function() {
+        modal.classList.remove('show');
+      };
+
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+        }
+      };
+    }
+
+    function adicionarAoCarrinho(nome, imagem, preco) {
+      mostrarModal(
+        'Adicionar ao Carrinho',
+        `Deseja adicionar ${nome} ao carrinho?`,
+        function() {
+          let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+          const itemExistente = carrinho.find(item => item.nome === nome);
+
+          if (itemExistente) {
+            itemExistente.quantidade += 1;
+          } else {
+            carrinho.push({
+              nome,
+              imagem,
+              preco,
+              quantidade: 1
+            });
+          }
+
+          localStorage.setItem('carrinho', JSON.stringify(carrinho));
+          atualizarContadorCarrinho();
+          alert(`✅ ${nome} adicionado ao carrinho!`);
+        }
+      );
+    }
+
+    function atualizarContadorCarrinho() {
+      const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+      const totalItens = carrinho.reduce((total, item) => total + item.quantidade, 0);
+      document.getElementById('carrinho-count').textContent = totalItens;
+    }
+
+    // 🔥 VERIFICAÇÃO DE LOGIN
+    auth.onAuthStateChanged(user => {
+      const btnSair = document.getElementById('btn-sair');
+      if (user) {
+        btnSair.style.display = 'block';
+        atualizarContadorCarrinho();
+      } else {
+        window.location.href = 'login.html';
+      }
     });
 
-    carregarComentarios();
-  });
-</script>
+    // 🔥 LOGOUT
+    document.getElementById('btn-sair').onclick = function(e) {
+      e.preventDefault();
+      auth.signOut().then(() => {
+        window.location.href = 'login.html';
+      }).catch(error => {
+        console.error('Erro ao sair:', error);
+        alert('Erro ao sair. Tente novamente.');
+      });
+    };
+
+    // Animações e scroll
+    document.addEventListener('DOMContentLoaded', function () {
+      const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.15
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('show');
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll('.animate-on-scroll, .produto').forEach(el => {
+        observer.observe(el);
+      });
+
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href');
+          const targetElement = document.querySelector(targetId);
+          if (targetElement) {
+            window.scrollTo({
+              top: targetElement.offsetTop - 80,
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+    });
+
+    // Formulário de contato
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.getElementById('meuformulário');
+      const comentariosContainer = document.getElementById('comentarios-container');
+
+      if (!form || !comentariosContainer) return;
+
+      function carregarComentarios() {
+        const comentariosSalvos = JSON.parse(localStorage.getItem('comentarios')) || [];
+        comentariosContainer.innerHTML = '';
+
+        if (comentariosSalvos.length === 0) {
+          comentariosContainer.innerHTML = '<p style="text-align:center; color:#888;">Nenhum comentário ainda. Seja o primeiro!</p>';
+          return;
+        }
+
+        comentariosSalvos.forEach(comentario => {
+          const div = document.createElement('div');
+          div.classList.add('comentario-item');
+          div.style.backgroundColor = '#f9f9f9';
+          div.style.padding = '15px';
+          div.style.margin = '10px 0';
+          div.style.borderRadius = '8px';
+          div.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+          div.innerHTML = `
+            <strong>${comentario.nome} ${comentario.sobrenome}</strong> - ${comentario.data}<br>
+            <em>"${comentario.mensagem}"</em><br>
+            <small>
+              📧 ${comentario.email} | 📞 ${comentario.telefone || 'Não informado'} | 🎂 Nasc.: ${comentario.nascimento}
+            </small>
+          `;
+          comentariosContainer.appendChild(div);
+        });
+      }
+
+      function salvarComentario(comentario) {
+        const comentariosSalvos = JSON.parse(localStorage.getItem('comentarios')) || [];
+        comentariosSalvos.push(comentario);
+        localStorage.setItem('comentarios', JSON.stringify(comentariosSalvos));
+      }
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const nome = document.getElementById('nome')?.value.trim();
+        const sobrenome = document.getElementById('sobrenome')?.value.trim();
+        const email = document.getElementById('email')?.value.trim();
+        const nascimento = document.getElementById('nascimento')?.value;
+        const telefone = document.getElementById('telefone')?.value.trim();
+        const mensagem = document.getElementById('mensagem')?.value.trim();
+
+        if (!nome || !sobrenome || !email || !mensagem) {
+          alert('Por favor, preencha todos os campos obrigatórios.');
+          return;
+        }
+
+        const novoComentario = {
+          nome,
+          sobrenome,
+          email,
+          nascimento,
+          telefone,
+          mensagem,
+          data: new Date().toLocaleString('pt-BR')
+        };
+
+        salvarComentario(novoComentario);
+        carregarComentarios();
+        form.reset();
+        alert('✅ Mensagem enviada com sucesso! Obrigado pelo seu feedback.');
+      });
+
+      carregarComentarios();
+    });
+  </script>
 </body>
-
 </html>
-
