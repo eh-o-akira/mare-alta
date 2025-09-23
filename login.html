@@ -259,9 +259,10 @@
         // ✅ Redireciona para index.html após 1.5 segundos
         const name = userCredential.user.displayName || email.split('@')[0];
         showMessage(`Login realizado! Bem-vindo, ${name}. Redirecionando...`, 'success');
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 1500);
+        // login.html
+setTimeout(() => {
+  window.location.href = 'index.html';
+}, 1500);
         
       } catch (error) {
         let msg = 'Erro ao fazer login.';
@@ -275,4 +276,5 @@
     });
   </script>
 </body>
+
 </html>
