@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maré Alta - Loja de Barcos</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <style>
+    /* ... SEU CSS EXISTENTE (mantido 100% igual) ... */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .animate-on-scroll.show {
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #0077b6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      margin: 10px 5px;
+    }
+
+    .btn:hover {
+      background: #0096c7;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .btn-secondary {
+      background: #023e8a;
+    }
+
+    .btn-secondary:hover {
+      background: #005f8a;
+    }
+
+    .hero {
+      background: linear-gradient(rgba(2, 62, 138, 0.8), rgba(2, 62, 138, 0.9)), url('barcoaesthetic.png') center/cover no-repeat;
+      color: white;
+      text-align: center;
+      padding: 120px 20px;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 800px;
+      margin: 0 auto 30px;
+    }
+
+    #modelos {
+      padding: 80px 20px;
+      background-color: #f4f8fb;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.2rem;
+      color: #023e8a;
+      margin-bottom: 50px;
+    }
+
+    .produto {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+
+    .produto.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .carrinho-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .carrinho-btn {
+      background: #023e8a;
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .carrinho-btn:hover {
+      background: #005f8a;
+      transform: scale(1.1);
+    }
+
+    .carrinho-count {
+      background: #d62828;
+      color: white;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    #secao-contato {
+      padding: 80px 20px;
+      background-color: white;
+      margin-top: 40px;
+    }
+
+    #secao-contato h2 {
+      text-align: center;
+      color: #023e8a;
+      margin-bottom: 30px;
+    }
+
+    .comentarios-secao {
+      margin-top: 50px;
+      padding: 30px;
+      background-color: #f0f7ff;
+      border-radius: 12px;
+    }
+
+    .comentarios-secao h3 {
+      color: #023e8a;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .comentario-item {
+      background-color: #f9f9f9;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .comentario-item small {
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    /* Modal de Confirmação */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.show .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-content h3 {
+      color: #023e8a;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+
+    .modal-content p {
+      margin-bottom: 25px;
+      color: #555;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-btn-cancel {
+      background: #6c757d;
+      color: white;
+    }
+
+    .modal-btn-confirm {
+      background: #023e8a;
+      color: white;
+    }
+
+    .modal-btn-cancel:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+
+    .modal-btn-confirm:hover {
+      background: #005f8a;
+      transform: translateY(-2px);
+    }
+
+    .btn-sair {
+      position: fixed;
+      top: 20px;
+      right: 90px;
+      background: transparent;
+      color: #023e8a;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: underline;
+      opacity: 0.7;
+      z-index: 1100;
+      transition: opacity 0.2s;
+    }
+
+    .btn-sair:hover {
+      opacity: 1;
+      color: #d62828;
+    }
+  </style>
+</head>
+<body>
+  <button class="btn-sair" id="btn-sair" style="display:none;">Sair</button>
+  <header>
+    <h1>Maré Alta</h1>
+    <nav>
+      <a href="#hero" class="btn">Início</a>
+      <a href="#modelos" class="btn">Modelos</a>
+      <a href="#secao-contato" class="btn">Contato</a>
+    </nav>
+    <div class="carrinho-container">
+      <button class="carrinho-btn" onclick="window.location.href='carrinho.html'">🛒</button>
+      <div class="carrinho-count" id="carrinho-count">0</div>
+    </div>
+  </header>
+
+  <!-- ... SEU CONTEÚDO DO BODY (HERO, MODELOS, CONTATO) ... -->
+  <!-- (Mantido exatamente como você já tem — não mude nada abaixo!) -->
+
+  <section class="hero" id="hero">
+    <h1>Maré Alta</h1>
+    <p>Sua jornada no mar começa aqui. Há mais de 10 anos oferecendo as melhores embarcações do mercado, com qualidade, segurança e atendimento personalizado.</p>
+    <a href="#modelos" class="btn">Conheça nossos Modelos</a>
+    <a href="#secao-contato" class="btn btn-secondary">Fale Conosco</a>
+  </section>
+
+  <section id="modelos">
+    <h2 class="section-title">Nossos Modelos</h2>
+    <div class="produtos">
+      <article class="produto">
+        <img src="lancha esportiva.png" alt="Lancha Esportiva">
+        <h2>Lancha Esportiva</h2>
+        <p>Desempenho e estilo para aventuras no mar.</p>
+        <p class="preco">R$ 150.000,00</p>
+        <button onclick="adicionarAoCarrinho('Lancha Esportiva', 'lancha esportiva.png', 150000)" class="btn">Adicionar ao Carrinho</button>
+        <button onclick="window.location.href='detalhes.html?id=lancha'" class="btn">Ver Detalhes</button>
+      </article>
+
+      <article class="produto">
+        <img src="iate de luxo1.png" alt="Iate Luxuoso">
+        <h2>Iate Luxuoso</h2>
+        <p>Conforto e elegância para cruzeiros inesquecíveis.</p>
+        <p class="preco">R$ 1.200.000,00</p>
+        <button onclick="adicionarAoCarrinho('Iate Luxuoso', 'iate de luxo1.png', 1200000)" class="btn">Adicionar ao Carrinho</button>
+        <button onclick="window.location.href='detalhes.html?id=iate'" class="btn">Ver Detalhes</button>
+      </article>
+
+      <article class="produto">
+        <img src="seaking.png" alt="Barco de Pesca">
+        <h2>Barco de Pesca</h2>
+        <p>Equipado para suas jornadas de pesca.</p>
+        <p class="preco">R$ 80.000,00</p>
+        <button onclick="adicionarAoCarrinho('Barco de Pesca', 'seaking.png', 80000)" class="btn">Adicionar ao Carrinho</button>
+        <button onclick="window.location.href='detalhes.html?id=barco'" class="btn">Ver Detalhes</button>
+      </article>
+
+      <article class="produto">
+        <img src="catamarã.png" alt="Catamarã Luxuoso">
+        <h2>Catamarã Luxuoso</h2>
+        <p>Espaço, estabilidade e conforto para cruzeiros.</p>
+        <p class="preco">R$ 3.200.000,00</p>
+        <button onclick="adicionarAoCarrinho('Catamarã Luxuoso', 'catamarã.png', 3200000)" class="btn">Adicionar ao Carrinho</button>
+        <button onclick="window.location.href='detalhes.html?id=catamara'" class="btn">Ver Detalhes</button>
+      </article>
+
+      <article class="produto">
+        <img src="jet ski.png" alt="Jet Ski">
+        <h2>Jet Ski</h2>
+        <p>Velocidade e adrenalina nas ondas.</p>
+        <p class="preco">R$ 85.000,00</p>
+        <button onclick="adicionarAoCarrinho('Jet Ski', 'jet ski.png', 85000)" class="btn">Adicionar ao Carrinho</button>
+        <button onclick="window.location.href='detalhes.html?id=jetski'" class="btn">Ver Detalhes</button>
+      </article>
+    </div>
+  </section>
+
+  <section id="secao-contato">
+    <h2>Fale Conosco</h2>
+    <p>Preencha o formulário abaixo. Sua opinião é muito importante para nós!</p>
+    <form id="meuformulário">
+      <div>
+        <label for="nome">Nome:</label><br />
+        <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required /><br /><br />
+      </div>
+      <div>
+        <label for="sobrenome">Sobrenome:</label><br />
+        <input type="text" id="sobrenome" name="sobrenome" placeholder="Digite seu sobrenome" required /><br /><br />
+      </div>
+      <div>
+        <label for="email">E-mail:</label><br />
+        <input type="email" id="email" name="email" placeholder="exemplo@email.com" required /><br /><br />
+      </div>
+      <div>
+        <label for="nascimento">Data de Nascimento:</label><br />
+        <input type="date" id="nascimento" name="nascimento" required><br><br>
+      </div>
+      <div>
+        <label for="telefone">Telefone (opcional):</label><br />
+        <input type="tel" id="telefone" name="telefone" placeholder="(xx) xxxxx-xxxx" /><br /><br />
+      </div>
+      <div>
+        <label for="mensagem">Mensagem:</label><br />
+        <textarea id="mensagem" name="mensagem" rows="6" placeholder="Digite sua mensagem aqui..." required></textarea><br /><br />
+      </div>
+      <button type="submit" id="submibttn" class="btn">Enviar Mensagem</button>
+    </form>
+
+    <div class="info">
+      <p><strong>Email:</strong> contato@marealta.com.br</p>
+      <p><strong>Telefone:</strong> (91) 99999-9999</p>
+      <p><strong>Endereço:</strong> Av. Beira-Mar, 123 - Belém, PA</p>
+    </div>
+
+    <div class="comentarios-secao">
+      <h3>💬 Comentários dos Clientes</h3>
+      <div id="comentarios-container">
+        <!-- Comentários serão inseridos aqui -->
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Maré Alta. Todos os direitos reservados.</p>
+  </footer>
+
+  <!-- Modal de Confirmação -->
+  <div class="modal-overlay" id="modal-confirmacao">
+    <div class="modal-content">
+      <h3 id="modal-titulo">Confirmação</h3>
+      <p id="modal-mensagem">Tem certeza que deseja realizar esta ação?</p>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-cancel" id="modal-cancelar">Cancelar</button>
+        <button class="modal-btn modal-btn-confirm" id="modal-confirmar">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 🔥 CONFIGURAÇÃO DO FIREBASE - SUBSTITUA PELO SEU! 🔥
+    const firebaseConfig = {
+  apiKey: "AIzaSyDbeqfRD4VOV-5gx_vXuQaW069AbpFYHL0",
+  authDomain: "mare-alta-4b8d9.firebaseapp.com",
+  projectId: "mare-alta-4b8d9",
+  storageBucket: "mare-alta-4b8d9.firebasestorage.app",
+  messagingSenderId: "923084742688",
+  appId: "1:923084742688:web:360361ace1183103935c45"
+};
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Suas funções existentes (mantidas)
+    function mostrarModal(titulo, mensagem, callbackConfirmar) {
+      const modal = document.getElementById('modal-confirmacao');
+      const tituloModal = document.getElementById('modal-titulo');
+      const mensagemModal = document.getElementById('modal-mensagem');
+      const btnConfirmar = document.getElementById('modal-confirmar');
+      const btnCancelar = document.getElementById('modal-cancelar');
+
+      tituloModal.textContent = titulo;
+      mensagemModal.textContent = mensagem;
+
+      modal.classList.add('show');
+
+      btnConfirmar.onclick = null;
+      btnCancelar.onclick = null;
+
+      btnConfirmar.onclick = function() {
+        modal.classList.remove('show');
+        if (callbackConfirmar) callbackConfirmar();
+      };
+
+      btnCancelar.onclick = function() {
+        modal.classList.remove('show');
+      };
+
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+        }
+      };
+    }
+
+    function adicionarAoCarrinho(nome, imagem, preco) {
+      mostrarModal(
+        'Adicionar ao Carrinho',
+        `Deseja adicionar ${nome} ao carrinho?`,
+        function() {
+          let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+          const itemExistente = carrinho.find(item => item.nome === nome);
+
+          if (itemExistente) {
+            itemExistente.quantidade += 1;
+          } else {
+            carrinho.push({
+              nome,
+              imagem,
+              preco,
+              quantidade: 1
+            });
+          }
+
+          localStorage.setItem('carrinho', JSON.stringify(carrinho));
+          atualizarContadorCarrinho();
+          alert(`✅ ${nome} adicionado ao carrinho!`);
+        }
+      );
+    }
+
+    function atualizarContadorCarrinho() {
+      const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+      const totalItens = carrinho.reduce((total, item) => total + item.quantidade, 0);
+      document.getElementById('carrinho-count').textContent = totalItens;
+    }
+
+    function atualizarBotaoSair() {
+      const btnSair = document.getElementById('btn-sair');
+      auth.onAuthStateChanged(user => {
+        btnSair.style.display = user ? 'block' : 'none';
+      });
+    }
+
+    // Logout
+    document.getElementById('btn-sair').onclick = function() {
+      auth.signOut().then(() => {
+        window.location.href = 'login.html';
+      }).catch(error => {
+        console.error('Erro ao sair:', error);
+        alert('Erro ao sair. Tente novamente.');
+      });
+    };
+
+    // Carregar ao iniciar
+    document.addEventListener('DOMContentLoaded', function () {
+      // ... seu código de animação e scroll ...
+      const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.15
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('show');
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll('.animate-on-scroll, .produto').forEach(el => {
+        observer.observe(el);
+      });
+
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href');
+          const targetElement = document.querySelector(targetId);
+          if (targetElement) {
+            window.scrollTo({
+              top: targetElement.offsetTop - 80,
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+
+      atualizarContadorCarrinho();
+      atualizarBotaoSair();
+    });
+
+    // Seu formulário de contato (mantido)
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.getElementById('meuformulário');
+      const comentariosContainer = document.getElementById('comentarios-container');
+
+      if (!form || !comentariosContainer) return;
+
+      function carregarComentarios() {
+        const comentariosSalvos = JSON.parse(localStorage.getItem('comentarios')) || [];
+        comentariosContainer.innerHTML = '';
+
+        if (comentariosSalvos.length === 0) {
+          comentariosContainer.innerHTML = '<p style="text-align:center; color:#888;">Nenhum comentário ainda. Seja o primeiro!</p>';
+          return;
+        }
+
+        comentariosSalvos.forEach(comentario => {
+          const div = document.createElement('div');
+          div.classList.add('comentario-item');
+          div.style.backgroundColor = '#f9f9f9';
+          div.style.padding = '15px';
+          div.style.margin = '10px 0';
+          div.style.borderRadius = '8px';
+          div.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+          div.innerHTML = `
+            <strong>${comentario.nome} ${comentario.sobrenome}</strong> - ${comentario.data}<br>
+            <em>"${comentario.mensagem}"</em><br>
+            <small>
+              📧 ${comentario.email} | 📞 ${comentario.telefone || 'Não informado'} | 🎂 Nasc.: ${comentario.nascimento}
+            </small>
+          `;
+          comentariosContainer.appendChild(div);
+        });
+      }
+
+      function salvarComentario(comentario) {
+        const comentariosSalvos = JSON.parse(localStorage.getItem('comentarios')) || [];
+        comentariosSalvos.push(comentario);
+        localStorage.setItem('comentarios', JSON.stringify(comentariosSalvos));
+      }
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const nome = document.getElementById('nome')?.value.trim();
+        const sobrenome = document.getElementById('sobrenome')?.value.trim();
+        const email = document.getElementById('email')?.value.trim();
+        const nascimento = document.getElementById('nascimento')?.value;
+        const telefone = document.getElementById('telefone')?.value.trim();
+        const mensagem = document.getElementById('mensagem')?.value.trim();
+
+        if (!nome || !sobrenome || !email || !mensagem) {
+          alert('Por favor, preencha todos os campos obrigatórios.');
+          return;
+        }
+
+        const novoComentario = {
+          nome,
+          sobrenome,
+          email,
+          nascimento,
+          telefone,
+          mensagem,
+          data: new Date().toLocaleString('pt-BR')
+        };
+
+        salvarComentario(novoComentario);
+        carregarComentarios();
+        form.reset();
+        alert('✅ Mensagem enviada com sucesso! Obrigado pelo seu feedback.');
+      });
+
+      carregarComentarios();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Maré Alta</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: url('coral ecosystems reeffish.png') center/cover no-repeat;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    /* Overlay escuro para contraste */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(2, 62, 138, 0.7); /* Gradiente azul escuro */
+      z-index: 0;
+    }
+
+    .login-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 450px;
+      z-index: 1;
+      backdrop-filter: blur(10px);
+    }
+
+    .login-container h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #023e8a;
+      font-size: 2.2rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #e0e6ed;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+      background: white;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #0077b6;
+    }
+
+    .btn {
+      background: #023e8a;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      background: #005f8a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(2, 62, 138, 0.3);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .message {
+      text-align: center;
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      display: block;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+
+    .toggle-form {
+      text-align: center;
+      margin-top: 20px;
+      color: #0077b6;
+      cursor: pointer;
+      text-decoration: underline;
+      font-weight: 500;
+    }
+
+    /* Responsividade */
+    @media (max-width: 500px) {
+      .login-container {
+        padding: 25px;
+        margin: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2 id="form-title">Criar Conta</h2>
+    
+    <form id="signup-form">
+      <div class="form-group">
+        <label for="signup-name">Nome Completo</label>
+        <input type="text" id="signup-name" placeholder="Seu nome" required>
+      </div>
+      <div class="form-group">
+        <label for="signup-email">E-mail</label>
+        <input type="email" id="signup-email" placeholder="exemplo@email.com" required>
+      </div>
+      <div class="form-group">
+        <label for="signup-password">Senha</label>
+        <input type="password" id="signup-password" placeholder="Mínimo 6 caracteres" required minlength="6">
+      </div>
+      <button type="submit" class="btn">Criar Conta</button>
+    </form>
+
+    <form id="login-form" style="display:none;">
+      <div class="form-group">
+        <label for="login-email">E-mail</label>
+        <input type="email" id="login-email" placeholder="exemplo@email.com" required>
+      </div>
+      <div class="form-group">
+        <label for="login-password">Senha</label>
+        <input type="password" id="login-password" placeholder="Sua senha" required>
+      </div>
+      <button type="submit" class="btn">Entrar</button>
+    </form>
+
+    <div class="toggle-form" id="toggle-form">Já tem conta? Faça login</div>
+    <div class="message" id="message"></div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // 🔥 SUBSTITUA PELO SEU CONFIG DO FIREBASE 🔥
+    const firebaseConfig = {
+  apiKey: "AIzaSyDbeqfRD4VOV-5gx_vXuQaW069AbpFYHL0",
+  authDomain: "mare-alta-4b8d9.firebaseapp.com",
+  projectId: "mare-alta-4b8d9",
+  storageBucket: "mare-alta-4b8d9.firebasestorage.app",
+  messagingSenderId: "923084742688",
+  appId: "1:923084742688:web:360361ace1183103935c45"
+};
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+
+    // Mensagem
+    function showMessage(text, type) {
+      const msg = document.getElementById('message');
+      msg.textContent = text;
+      msg.className = `message ${type}`;
+    }
+
+    // Toggle entre login e signup
+    document.getElementById('toggle-form').addEventListener('click', function() {
+      const isSignup = document.getElementById('signup-form').style.display === 'none';
+      document.getElementById('signup-form').style.display = isSignup ? 'block' : 'none';
+      document.getElementById('login-form').style.display = isSignup ? 'none' : 'block';
+      document.getElementById('form-title').textContent = isSignup ? 'Criar Conta' : 'Entrar';
+      this.textContent = isSignup ? 'Já tem conta? Faça login' : 'Não tem conta? Cadastre-se';
+    });
+
+    // Signup
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('signup-name').value;
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+
+      try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        await userCredential.user.updateProfile({ displayName: name });
+        
+        // ✅ Redireciona para index.html após 1.5 segundos
+        showMessage('Conta criada com sucesso! Redirecionando...', 'success');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+        
+      } catch (error) {
+        let msg = 'Erro ao criar conta.';
+        if (error.code === 'auth/email-already-in-use') {
+          msg = 'Este e-mail já está em uso.';
+        } else if (error.code === 'auth/invalid-email') {
+          msg = 'E-mail inválido.';
+        } else if (error.code === 'auth/weak-password') {
+          msg = 'A senha deve ter pelo menos 6 caracteres.';
+        }
+        showMessage(msg, 'error');
+      }
+    });
+
+    // Login
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        
+        // ✅ Redireciona para index.html após 1.5 segundos
+        const name = userCredential.user.displayName || email.split('@')[0];
+        showMessage(`Login realizado! Bem-vindo, ${name}. Redirecionando...`, 'success');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+        
+      } catch (error) {
+        let msg = 'Erro ao fazer login.';
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+          msg = 'E-mail ou senha incorretos.';
+        } else if (error.code === 'auth/invalid-email') {
+          msg = 'E-mail inválido.';
+        }
+        showMessage(msg, 'error');
+      }
+    });
+  </script>
+</body>
+</html>

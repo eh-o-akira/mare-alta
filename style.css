@@ -1,0 +1,219 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f8fb;
+    color: #333;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+header {
+    background-color: #023e8a;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+nav {
+    margin-top: 10px;
+}
+
+nav a {
+    color: white;
+    margin: 0 15px;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: #90e0ef;
+}
+
+footer {
+    background-color: #023e8a;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: 40px;
+}
+
+.produtos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    padding: 40px 20px;
+}
+
+.produto {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    text-align: center;
+    padding: 20px;
+}
+
+.produto img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.produto h2 {
+    color: #0077b6;
+    margin-bottom: 10px;
+}
+
+.produto p {
+    margin-bottom: 10px;
+}
+
+.produto .preco {
+    font-weight: bold;
+    color: #023e8a;
+    margin-bottom: 15px;
+}
+
+.produto button {
+    background-color: #0077b6;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.produto button:hover {
+    background-color: #0096c7;
+}
+
+/* ====== ESTILO FORMULÁRIO DE CONTATO ====== */
+.contato {
+    background: #fff;
+    max-width: 600px;
+    margin: 40px auto 30px auto;
+    padding: 40px 30px 30px 30px;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(2,62,138,0.08), 0 1.5px 8px rgba(2,62,138,0.04);
+}
+.contato h2 {
+    color: #023e8a;
+    text-align: center;
+    margin-bottom: 18px;
+    font-size: 2rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+.contato p {
+    text-align: center;
+    color: #555;
+    margin-bottom: 30px;
+}
+#meuformulário {
+    margin-bottom: 30px;
+}
+#meuformulário label {
+    font-weight: 600;
+    color: #023e8a;
+    margin-bottom: 6px;
+    display: block;
+}
+#meuformulário input,
+#meuformulário textarea {
+    width: 100%;
+    padding: 13px 12px;
+    border: 2px solid #e0e6ed;
+    border-radius: 10px;
+    font-size: 1rem;
+    margin-bottom: 18px;
+    background: #f9fbfd;
+    transition: border-color 0.3s;
+    color: #222;
+    resize: none;
+}
+#meuformulário input:focus,
+#meuformulário textarea:focus {
+    border-color: #0077b6;
+    outline: none;
+    background: #fff;
+}
+#submit-btn {
+    background: #023e8a;
+    color: white;
+    border: none;
+    padding: 14px 0;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(2,62,138,0.07);
+}
+#submit-btn:hover {
+    background: #005f8a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(2, 62, 138, 0.13);
+}
+.info {
+    background: #f0f7ff;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 25px;
+    color: #023e8a;
+    font-size: 1rem;
+    box-shadow: 0 1px 4px rgba(2,62,138,0.04);
+}
+.comentarios-secao {
+    margin-top: 30px;
+    padding: 22px 15px;
+    background-color: #f0f7ff;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(2,62,138,0.04);
+}
+.comentarios-secao h3 {
+    color: #023e8a;
+    margin-bottom: 16px;
+    text-align: center;
+}
+.comentario-item {
+    background-color: #f9f9f9;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+.comentario-item small {
+    color: #666;
+    font-size: 0.85rem;
+}
+@media (max-width: 768px) {
+    nav a {
+        display: inline-block;
+        margin: 10px 5px;
+    }
+}
+@media (max-width: 700px) {
+    .contato {
+        padding: 18px 6vw 18px 6vw;
+    }
+}

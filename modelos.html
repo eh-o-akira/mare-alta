@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modelos - Maré Alta</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Modelos</h1>
+    <nav>
+      <a href="index.html">Início</a>
+      <a href="modelos.html">Modelos</a>
+      <a href="contato.html">Contato</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Lista de Modelos -->
+    <section class="modelos" id="lista-modelos">
+      <h2>Conheça nossos modelos</h2>
+      <p>Veja abaixo os tipos de embarcações que oferecemos e descubra qual é a ideal para você.</p>
+
+      <div class="modelo">
+        <img src="lancha esportiva.png" alt="Lancha Esportiva">
+        <h3>Lancha Esportiva</h3>
+        <p>Indicada para quem busca adrenalina, velocidade e agilidade.</p>
+        <button onclick="mostrarDetalhes('lancha')">Ver Detalhes</button>
+      </div>
+
+      <div class="modelo">
+        <img src="iate de luxo1.png" alt="Iate Luxuoso">
+        <h3>Iate Luxuoso</h3>
+        <p>Ideal para quem deseja conforto, sofisticação e espaço.</p>
+        <button onclick="mostrarDetalhes('iate')">Ver Detalhes</button>
+      </div>
+
+      <div class="modelo">
+        <img src="seaking.png" alt="Barco de Pesca">
+        <h3>Barco de Pesca</h3>
+        <p>Projetado para pescarias longas, com estabilidade e compartimentos.</p>
+        <button onclick="mostrarDetalhes('barco')">Ver Detalhes</button>
+      </div>
+
+      <div class="modelo">
+        <img src="catamarã.png" alt="Catamarã">
+        <h3>Catamarã Luxuoso</h3>
+        <p>Oferece mais estabilidade e espaço. Ideal para passeios em família.</p>
+        <button onclick="mostrarDetalhes('catamara')">Ver Detalhes</button>
+      </div>
+
+      <div class="modelo">
+        <img src="jet ski.png" alt="Jet Ski">
+        <h3>Jet Ski</h3>
+        <p>Perfeito para diversão rápida e esportes aquáticos.</p>
+        <button onclick="mostrarDetalhes('jetski')">Ver Detalhes</button>
+      </div>
+    </section>
+
+    <!-- Detalhes Dinâmicos -->
+    <section class="detalhes-produto" id="detalhes-produto" style="display: none; padding: 40px 20px; max-width: 800px; margin: 40px auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+      <button onclick="voltarParaLista()" style="background: #0077b6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-bottom: 20px;">← Voltar</button>
+      <img id="detalhe-img" src="" alt="" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 20px;">
+      <h2 id="detalhe-titulo"></h2>
+      <p id="detalhe-descricao"></p>
+      <p><strong>Preço:</strong> <span id="detalhe-preco"></span></p>
+      <p><strong>Características:</strong> <span id="detalhe-caracteristicas"></span></p>
+      <p><strong>Garantia:</strong> <span id="detalhe-garantia"></span></p>
+      <button onclick="alert('Compra simulada com sucesso!')" style="background: #023e8a; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; margin-top: 20px;">Finalizar Compra</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Maré Alta. Todos os direitos reservados.</p>
+  </footer>
+
+  <script>
+    const produtos = {
+      lancha: {
+        titulo: "Lancha Esportiva",
+        img: "lancha esportiva.png",
+        descricao: "Desempenho e estilo para aventuras no mar.",
+        preco: "R$ 150.000,00",
+        caracteristicas: "Motor potente, design aerodinâmico, capacidade para até 8 pessoas.",
+        garantia: "2 anos de fábrica"
+      },
+      iate: {
+        titulo: "Iate Luxuoso",
+        img: "iate de luxo1.png",
+        descricao: "Conforto e sofisticação para longas viagens no mar.",
+        preco: "R$ 5.000.000,00",
+        caracteristicas: "Cabines confortáveis, cozinha gourmet, sistema de navegação digital.",
+        garantia: "5 anos de fábrica"
+      },
+      barco: {
+        titulo: "Barco de Pesca",
+        img: "seaking.png",
+        descricao: "Resistência e espaço para pescadores exigentes.",
+        preco: "R$ 30.000,00",
+        caracteristicas: "Casco reforçado, compartimentos de armazenamento, assentos confortáveis.",
+        garantia: "1 ano de fábrica"
+      },
+      catamara: {
+        titulo: "Catamarã Luxuoso",
+        img: "catamarã.png",
+        descricao: "Embarcação multicasco.",
+        preco: "R$ 3.200.000,00",
+        caracteristicas: "Amplo espaço, alta estabilidade, ideal para cruzeiros de luxo.",
+        garantia: "5 anos de fábrica"
+      },
+      jetski: {
+        titulo: "Jet Ski",
+        img: "jet ski.png",
+        descricao: "Moto aquática radical.",
+        preco: "R$ 85.000,00",
+        caracteristicas: "Design esportivo, motor potente, ideal para aventuras no mar.",
+        garantia: "2 anos de fábrica"
+      }
+    };
+
+    function mostrarDetalhes(id) {
+      const produto = produtos[id];
+      if (!produto) return;
+
+      document.getElementById('detalhe-titulo').textContent = produto.titulo;
+      document.getElementById('detalhe-img').src = produto.img;
+      document.getElementById('detalhe-descricao').textContent = produto.descricao;
+      document.getElementById('detalhe-preco').textContent = produto.preco;
+      document.getElementById('detalhe-caracteristicas').textContent = produto.caracteristicas;
+      document.getElementById('detalhe-garantia').textContent = produto.garantia;
+
+      document.getElementById('lista-modelos').style.display = 'none';
+      document.getElementById('detalhes-produto').style.display = 'block';
+
+      // Scroll suave para o topo da seção de detalhes
+      document.getElementById('detalhes-produto').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function voltarParaLista() {
+      document.getElementById('lista-modelos').style.display = 'block';
+      document.getElementById('detalhes-produto').style.display = 'none';
+    }
+
+    // Se acessar com #hash, mostra o produto automaticamente
+    window.addEventListener('load', () => {
+      const hash = window.location.hash.substring(1);
+      if (hash && produtos[hash]) {
+        mostrarDetalhes(hash);
+      }
+    });
+  </script>
+</body>
+</html>

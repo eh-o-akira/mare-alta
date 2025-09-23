@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Carrinho - Maré Alta</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .carrinho-container {
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .carrinho-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 15px;
+    }
+
+    .carrinho-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-right: 15px;
+    }
+
+    .carrinho-item-info {
+      flex: 1;
+    }
+
+    .carrinho-item-price {
+      font-weight: bold;
+      color: #023e8a;
+      margin-left: 20px;
+    }
+
+    .carrinho-item-quantidade {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: 20px;
+    }
+
+    .btn-remover {
+      background: #d62828;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-remover:hover {
+      background: #ff5454;
+    }
+
+    .carrinho-total {
+      text-align: right;
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid #023e8a;
+    }
+
+    .btn-finalizar {
+      background: #023e8a;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 20px;
+      display: block;
+      width: 100%;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .btn-finalizar:hover {
+      background: #0077b6;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.show .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-content h3 {
+      color: #023e8a;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+
+    .modal-content p {
+      margin-bottom: 25px;
+      color: #555;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-btn-cancel {
+      background: #6c757d;
+      color: white;
+    }
+
+    .modal-btn-confirm {
+      background: #023e8a;
+      color: white;
+    }
+
+    .modal-btn-cancel:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+
+    .modal-btn-confirm:hover {
+      background: #005f8a;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Meu Carrinho</h1>
+    <nav>
+      <a href="index.html">Início</a>
+      <a href="index.html#modelos">Modelos</a>
+      <a href="index.html#secao-contato">Contato</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="carrinho-container">
+      <h2>Itens no Carrinho</h2>
+      <div id="carrinho-itens">
+        <!-- Itens serão inseridos aqui -->
+      </div>
+      <div class="carrinho-total">
+        Total: <span id="total-carrinho">R$ 0,00</span>
+      </div>
+      <button class="btn-finalizar">Finalizar Compra</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Maré Alta. Todos os direitos reservados.</p>
+  </footer>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal-confirmacao">
+    <div class="modal-content">
+      <h3 id="modal-titulo">Confirmação</h3>
+      <p id="modal-mensagem">Tem certeza que deseja realizar esta ação?</p>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-cancel" id="modal-cancelar">Cancelar</button>
+        <button class="modal-btn modal-btn-confirm" id="modal-confirmar">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Utilitário para obter a chave do carrinho do usuário logado
+    function getCartKey() {
+      const uid = localStorage.getItem('currentUserUID');
+      return uid ? `carrinho_${uid}` : 'carrinho_guest';
+    }
+
+    function mostrarModal(titulo, mensagem, callbackConfirmar) {
+      const modal = document.getElementById('modal-confirmacao');
+      const tituloModal = document.getElementById('modal-titulo');
+      const mensagemModal = document.getElementById('modal-mensagem');
+      const btnConfirmar = document.getElementById('modal-confirmar');
+      const btnCancelar = document.getElementById('modal-cancelar');
+
+      tituloModal.textContent = titulo;
+      mensagemModal.textContent = mensagem;
+
+      modal.classList.add('show');
+
+      btnConfirmar.onclick = null;
+      btnCancelar.onclick = null;
+
+      btnConfirmar.onclick = function() {
+        modal.classList.remove('show');
+        if (callbackConfirmar) callbackConfirmar();
+      };
+
+      btnCancelar.onclick = function() {
+        modal.classList.remove('show');
+      };
+
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+        }
+      };
+    }
+
+    function carregarCarrinho() {
+      const carrinho = JSON.parse(localStorage.getItem(getCartKey())) || [];
+      const container = document.getElementById('carrinho-itens');
+      const totalElement = document.getElementById('total-carrinho');
+
+      if (carrinho.length === 0) {
+        container.innerHTML = '<p>Seu carrinho está vazio.</p>';
+        totalElement.textContent = 'R$ 0,00';
+        return;
+      }
+
+      let total = 0;
+      container.innerHTML = '';
+
+      carrinho.forEach((item, index) => {
+        const subtotal = item.preco * item.quantidade;
+        total += subtotal;
+
+        const div = document.createElement('div');
+        div.classList.add('carrinho-item');
+        div.innerHTML = `
+          <img src="${item.imagem}" alt="${item.nome}">
+          <div class="carrinho-item-info">
+            <h3>${item.nome}</h3>
+            <p>Quantidade: ${item.quantidade}</p>
+          </div>
+          <div class="carrinho-item-price">R$ ${subtotal.toFixed(2).replace('.', ',')}</div>
+          <div class="carrinho-item-quantidade">
+            <button onclick="alterarQuantidade(${index}, -1)">-</button>
+            <span>${item.quantidade}</span>
+            <button onclick="alterarQuantidade(${index}, 1)">+</button>
+            <button class="btn-remover" onclick="removerItem(${index})">🗑️</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      totalElement.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+
+    function alterarQuantidade(index, delta) {
+      let carrinho = JSON.parse(localStorage.getItem(getCartKey())) || [];
+      if (carrinho[index]) {
+        carrinho[index].quantidade += delta;
+        if (carrinho[index].quantidade <= 0) {
+          carrinho.splice(index, 1);
+        }
+        localStorage.setItem(getCartKey(), JSON.stringify(carrinho));
+        carregarCarrinho();
+      }
+    }
+
+    function removerItem(index) {
+      mostrarModal(
+        'Remover Item',
+        'Deseja remover este item do carrinho?',
+        function() {
+          let carrinho = JSON.parse(localStorage.getItem(getCartKey())) || [];
+          carrinho.splice(index, 1);
+          localStorage.setItem(getCartKey(), JSON.stringify(carrinho));
+          carregarCarrinho();
+        }
+      );
+    }
+
+    window.addEventListener('load', carregarCarrinho);
+  </script>
+</body>
+</html>

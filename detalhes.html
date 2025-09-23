@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes do Produto - Maré Alta</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: #f4f8fb;
+    }
+
+    .detalhes-produto {
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(2, 62, 138, 0.15);
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+
+    .detalhes-produto.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .detalhes-produto img {
+      width: 100%;
+      max-height: 450px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .detalhes-produto h2 {
+      color: #023e8a;
+      margin-bottom: 20px;
+      font-size: 2.2rem;
+      text-align: center;
+    }
+
+    .detalhes-produto p {
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: #444;
+    }
+
+    .detalhes-produto p strong {
+      color: #023e8a;
+    }
+
+    .voltar-btn {
+      display: inline-block;
+      background: #0077b6;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+    }
+
+    .voltar-btn:hover {
+      background: #0096c7;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .btn-adicionar {
+      background: #023e8a;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+      max-width: 300px;
+      margin: 20px auto 0;
+      display: block;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .btn-adicionar:hover {
+      background: #005f8a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(2, 62, 138, 0.3);
+    }
+
+    /* Modal de Confirmação */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.show .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-content h3 {
+      color: #023e8a;
+      margin-bottom: 15px;
+      font-size: 1.4rem;
+    }
+
+    .modal-content p {
+      margin-bottom: 25px;
+      color: #555;
+      font-size: 1.05rem;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 90px;
+    }
+
+    .modal-btn-cancel {
+      background: #6c757d;
+      color: white;
+    }
+
+    .modal-btn-confirm {
+      background: #023e8a;
+      color: white;
+    }
+
+    .modal-btn-cancel:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+
+    .modal-btn-confirm:hover {
+      background: #005f8a;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Detalhes do Produto</h1>
+    <nav>
+      <a href="index.html">Início</a>
+      <a href="index.html#modelos">Modelos</a>
+      <a href="contato.html">Contato</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="detalhes-produto" id="detalhes-produto">
+      <a href="index.html" class="voltar-btn">← Voltar para Modelos</a>
+      <img id="detalhe-img" src="" alt="">
+      <h2 id="detalhe-titulo"></h2>
+      <p id="detalhe-descricao"></p>
+      <p><strong>Preço:</strong> <span id="detalhe-preco"></span></p>
+      <p><strong>Características:</strong> <span id="detalhe-caracteristicas"></span></p>
+      <p><strong>Garantia:</strong> <span id="detalhe-garantia"></span></p>
+      <button class="btn-adicionar" onclick="adicionarAoCarrinho()">Adicionar ao Carrinho</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Maré Alta. Todos os direitos reservados.</p>
+  </footer>
+
+  <!-- Modal de Confirmação -->
+  <div class="modal-overlay" id="modal-confirmacao">
+    <div class="modal-content">
+      <h3 id="modal-titulo">Adicionar ao Carrinho</h3>
+      <p id="modal-mensagem">Deseja adicionar este item ao carrinho?</p>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-cancel" id="modal-cancelar">Cancelar</button>
+        <button class="modal-btn modal-btn-confirm" id="modal-confirmar">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const produtos = {
+      lancha: {
+        titulo: "Lancha Esportiva",
+        img: "lancha esportiva.png",
+        descricao: "Desempenho e estilo para aventuras no mar. Ideal para esportes aquáticos e passeios rápidos.",
+        preco: "R$ 150.000,00",
+        caracteristicas: "Motor potente, design aerodinâmico, capacidade para até 8 pessoas, tanque de combustível de 200L.",
+        garantia: "2 anos de fábrica"
+      },
+      iate: {
+        titulo: "Iate Luxuoso",
+        img: "iate de luxo1.png",
+        descricao: "Conforto e sofisticação para longas viagens no mar. Um verdadeiro hotel flutuante.",
+        preco: "R$ 5.000.000,00",
+        caracteristicas: "Cabines equipadas, sala de estar, cozinha gourmet, sistema de navegação digital, tripulação opcional.",
+        garantia: "5 anos de fábrica"
+      },
+      barco: {
+        titulo: "Barco de Pesca",
+        img: "seaking.png",
+        descricao: "Resistência e espaço para pescadores exigentes. Projetado para jornadas longas.",
+        preco: "R$ 30.000,00",
+        caracteristicas: "Casco reforçado, compartimentos de armazenamento, assentos confortáveis, motor resistente.",
+        garantia: "1 ano de fábrica"
+      },
+      catamara: {
+        titulo: "Catamarã Luxuoso",
+        img: "catamarã.png",
+        descricao: "Embarcação multicasco com alta estabilidade e amplo espaço interno.",
+        preco: "R$ 3.200.000,00",
+        caracteristicas: "Dois cascos paralelos, ideal para passeios em família, festas no mar e cruzeiros de luxo.",
+        garantia: "5 anos de fábrica"
+      },
+      jetski: {
+        titulo: "Jet Ski",
+        img: "jet ski.png",
+        descricao: "Velocidade e adrenalina nas ondas com total segurança.",
+        preco: "R$ 85.000,00",
+        caracteristicas: "Capacidade para 1 a 3 pessoas, excelente manobrabilidade, motor de 310 HP, design esportivo.",
+        garantia: "2 anos de fábrica"
+      }
+    };
+
+    // Modal
+    function mostrarModal(titulo, mensagem, callbackConfirmar) {
+      const modal = document.getElementById('modal-confirmacao');
+      const tituloModal = document.getElementById('modal-titulo');
+      const mensagemModal = document.getElementById('modal-mensagem');
+      const btnConfirmar = document.getElementById('modal-confirmar');
+      const btnCancelar = document.getElementById('modal-cancelar');
+
+      tituloModal.textContent = titulo;
+      mensagemModal.textContent = mensagem;
+
+      modal.classList.add('show');
+
+      btnConfirmar.onclick = null;
+      btnCancelar.onclick = null;
+
+      btnConfirmar.onclick = function() {
+        modal.classList.remove('show');
+        if (callbackConfirmar) callbackConfirmar();
+      };
+
+      btnCancelar.onclick = function() {
+        modal.classList.remove('show');
+      };
+
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+        }
+      };
+    }
+
+    // Carregar detalhes
+    function carregarDetalhes() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+
+      if (!id || !produtos[id]) {
+        document.getElementById('detalhes-produto').innerHTML = `
+          <a href="index.html" class="voltar-btn">← Voltar</a>
+          <h2 style="text-align:center; color:#d62828;">Produto não encontrado</h2>
+          <p style="text-align:center; margin-top:20px;">Verifique o link e tente novamente.</p>
+        `;
+        return;
+      }
+
+      const produto = produtos[id];
+
+      document.getElementById('detalhe-titulo').textContent = produto.titulo;
+      document.getElementById('detalhe-img').src = produto.img;
+      document.getElementById('detalhe-descricao').textContent = produto.descricao;
+      document.getElementById('detalhe-preco').textContent = produto.preco;
+      document.getElementById('detalhe-caracteristicas').textContent = produto.caracteristicas;
+      document.getElementById('detalhe-garantia').textContent = produto.garantia;
+
+      setTimeout(() => {
+        document.getElementById('detalhes-produto').classList.add('show');
+      }, 100);
+    }
+
+    // Adicionar ao carrinho
+    function adicionarAoCarrinho() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+      const produto = produtos[id];
+
+      if (!produto) return;
+
+      mostrarModal(
+        'Adicionar ao Carrinho',
+        `Deseja adicionar o ${produto.titulo} ao carrinho?`,
+        function() {
+          let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+          const itemExistente = carrinho.find(item => item.nome === produto.titulo);
+
+          if (itemExistente) {
+            itemExistente.quantidade += 1;
+          } else {
+            carrinho.push({
+              nome: produto.titulo,
+              imagem: produto.img,
+              preco: parseFloat(produto.preco.replace(/[^\d,]/g, '').replace(',', '.')),
+              quantidade: 1
+            });
+          }
+
+          localStorage.setItem('carrinho', JSON.stringify(carrinho));
+          alert(`✅ ${produto.titulo} adicionado ao carrinho!`);
+        }
+      );
+    }
+
+    // Inicializar
+    window.addEventListener('load', carregarDetalhes);
+  </script>
+</body>
+</html>
