@@ -217,119 +217,135 @@
   </div>
 
   <script>
-  // Utilitário para obter a chave do carrinho do usuário logado
-  function getCartKey() {
-    const uid = localStorage.getItem('currentUserUID');
-    return uid ? `carrinho_${uid}` : 'carrinho_guest';
-  }
+    // Função para formatar moeda (R$ 150.000,00)
+    function formatarMoeda(valor) {
+      return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      }).format(valor);
+    }
 
-  function mostrarModal(titulo, mensagem, callbackConfirmar) {
-    const modal = document.getElementById('modal-confirmacao');
-    const tituloModal = document.getElementById('modal-titulo');
-    const mensagemModal = document.getElementById('modal-mensagem');
-    const btnConfirmar = document.getElementById('modal-confirmar');
-    const btnCancelar = document.getElementById('modal-cancelar');
+    // Mostrar modal de confirmação
+    function mostrarModal(titulo, mensagem, callbackConfirmar) {
+      const modal = document.getElementById('modal-confirmacao');
+      const tituloModal = document.getElementById('modal-titulo');
+      const mensagemModal = document.getElementById('modal-mensagem');
+      const btnConfirmar = document.getElementById('modal-confirmar');
+      const btnCancelar = document.getElementById('modal-cancelar');
 
-    tituloModal.textContent = titulo;
-    mensagemModal.textContent = mensagem;
+      tituloModal.textContent = titulo;
+      mensagemModal.textContent = mensagem;
 
-    modal.classList.add('show');
+      modal.classList.add('show');
 
-    btnConfirmar.onclick = null;
-    btnCancelar.onclick = null;
+      btnConfirmar.onclick = null;
+      btnCancelar.onclick = null;
 
-    btnConfirmar.onclick = function() {
-      modal.classList.remove('show');
-      if (callbackConfirmar) callbackConfirmar();
-    };
-
-    btnCancelar.onclick = function() {
-      modal.classList.remove('show');
-    };
-
-    modal.onclick = function(e) {
-      if (e.target === modal) {
+      btnConfirmar.onclick = function() {
         modal.classList.remove('show');
-      }
-    };
-  }
+        if (callbackConfirmar) callbackConfirmar();
+      };
 
-  function formatarMoeda(valor) {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(valor);
-  }
+      btnCancelar.onclick = function() {
+        modal.classList.remove('show');
+      };
 
-  function carregarCarrinho() {
-    const carrinho = JSON.parse(localStorage.getItem(getCartKey())) || [];
-    const container = document.getElementById('carrinho-itens');
-    const totalElement = document.getElementById('total-carrinho');
-
-    if (carrinho.length === 0) {
-      container.innerHTML = '<p>Seu carrinho está vazio.</p>';
-      totalElement.textContent = 'R$ 0,00';
-      return;
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+        }
+      };
     }
 
-    let total = 0;
-    container.innerHTML = '';
+    // Carregar carrinho
+    function carregarCarrinho() {
+      const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+      const container = document.getElementById('carrinho-itens');
+      const totalElement = document.getElementById('total-carrinho');
 
-    carrinho.forEach((item, index) => {
-      const subtotal = item.preco * item.quantidade;
-      total += subtotal;
-
-      const div = document.createElement('div');
-      div.classList.add('carrinho-item');
-      div.innerHTML = `
-        <img src="${item.imagem}" alt="${item.nome}">
-        <div class="carrinho-item-info">
-          <h3>${item.nome}</h3>
-          <p>Quantidade: ${item.quantidade}</p>
-        </div>
-        <div class="carrinho-item-price">${formatarMoeda(subtotal)}</div>
-        <div class="carrinho-item-quantidade">
-          <button onclick="alterarQuantidade(${index}, -1)">-</button>
-          <span>${item.quantidade}</span>
-          <button onclick="alterarQuantidade(${index}, 1)">+</button>
-          <button class="btn-remover" onclick="removerItem(${index})">🗑️ Remover</button>
-        </div>
-      `;
-      container.appendChild(div);
-    });
-
-    totalElement.textContent = formatarMoeda(total);
-  }
-
-  function alterarQuantidade(index, delta) {
-    let carrinho = JSON.parse(localStorage.getItem(getCartKey())) || [];
-    if (carrinho[index]) {
-      carrinho[index].quantidade += delta;
-      if (carrinho[index].quantidade <= 0) {
-        carrinho.splice(index, 1);
-      } else {
-        // Atualiza quantidade
+      if (carrinho.length === 0) {
+        container.innerHTML = '<p>Seu carrinho está vazio.</p>';
+        totalElement.textContent = 'R$ 0,00';
+        return;
       }
-      localStorage.setItem(getCartKey(), JSON.stringify(carrinho));
-      carregarCarrinho();
-    }
-  }
 
-  function removerItem(index) {
-    mostrarModal(
-      'Remover Item',
-      'Deseja remover este item do carrinho?',
-      function() {
-        let carrinho = JSON.parse(localStorage.getItem(getCartKey())) || [];
-        carrinho.splice(index, 1);
-        localStorage.setItem(getCartKey(), JSON.stringify(carrinho));
+      let total = 0;
+      container.innerHTML = '';
+
+      carrinho.forEach((item, index) => {
+        const subtotal = item.preco * item.quantidade;
+        total += subtotal;
+
+        const div = document.createElement('div');
+        div.classList.add('carrinho-item');
+        div.innerHTML = `
+          <img src="${item.imagem}" alt="${item.nome}">
+          <div class="carrinho-item-info">
+            <h3>${item.nome}</h3>
+            <p>Quantidade: ${item.quantidade}</p>
+          </div>
+          <div class="carrinho-item-price">${formatarMoeda(subtotal)}</div>
+          <div class="carrinho-item-quantidade">
+            <button onclick="alterarQuantidade(${index}, -1)">-</button>
+            <span>${item.quantidade}</span>
+            <button onclick="alterarQuantidade(${index}, 1)">+</button>
+            <button class="btn-remover" onclick="removerItem(${index})">🗑️ Remover</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      totalElement.textContent = formatarMoeda(total);
+    }
+
+    // Alterar quantidade
+    function alterarQuantidade(index, delta) {
+      let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+      if (carrinho[index]) {
+        carrinho[index].quantidade += delta;
+        if (carrinho[index].quantidade <= 0) {
+          carrinho.splice(index, 1);
+        }
+        localStorage.setItem('carrinho', JSON.stringify(carrinho));
         carregarCarrinho();
       }
-    );
-  }
+    }
 
-  window.addEventListener('load', carregarCarrinho);
-</script>
+    // Remover item
+    function removerItem(index) {
+      mostrarModal(
+        'Remover Item',
+        'Deseja remover este item do carrinho?',
+        function() {
+          let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+          carrinho.splice(index, 1);
+          localStorage.setItem('carrinho', JSON.stringify(carrinho));
+          carregarCarrinho();
+          // Atualiza contador no index.html
+          if (window.opener && window.opener.atualizarContadorCarrinho) {
+            window.opener.atualizarContadorCarrinho();
+          }
+        }
+      );
+    }
+
+    // Finalizar compra
+    document.querySelector('.btn-finalizar').addEventListener('click', () => {
+      const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+      if (carrinho.length === 0) {
+        alert('Seu carrinho está vazio.');
+        return;
+      }
+      alert('Compra finalizada com sucesso!');
+      localStorage.removeItem('carrinho');
+      carregarCarrinho();
+      if (window.opener && window.opener.atualizarContadorCarrinho) {
+        window.opener.atualizarContadorCarrinho();
+      }
+    });
+
+    // Carregar ao abrir
+    window.addEventListener('load', carregarCarrinho);
+  </script>
 </body>
-
 </html>
